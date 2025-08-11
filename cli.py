@@ -1,82 +1,47 @@
-import os
-from osint import *
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+from rich.align import Align
+from rich import box
+from rich.markdown import Markdown
+
+console = Console()
 
 def main_banner():
-	print(r"""
+	md = Markdown("# ez-dork == ez-dork == ez-dork")
+	console.print(md, style="dodger_blue2")
 
-  /$$$$$$           /$$$$$$   /$$$$$$  /$$$$$$ /$$   /$$ /$$$$$$$$
- /$$__  $$         /$$__  $$ /$$__  $$|_  $$_/| $$$ | $$|__  $$__/
-| $$  \ $$        | $$  \ $$| $$  \__/  | $$  | $$$$| $$   | $$   
-| $$$$$$$$ /$$$$$$| $$  | $$|  $$$$$$   | $$  | $$ $$ $$   | $$   
-| $$__  $$|______/| $$  | $$ \____  $$  | $$  | $$  $$$$   | $$   
-| $$  | $$        | $$  | $$ /$$  \ $$  | $$  | $$\  $$$   | $$   
-| $$  | $$        |  $$$$$$/|  $$$$$$/ /$$$$$$| $$ \  $$   | $$   
-|__/  |__/         \______/  \______/ |______/|__/  \__/   |__/   
-
-BY:ahnaf505
-""")
-
-def dorks_banner():
-	print("[SE DORKING]\n\n")
-	print("[INFO] > Input a Full Name, ID, or anything that may be a public piece of information.")
-	print("[INFO] > You can input up to 5 variation of keywords, this can inlude different formatting for names.\n")
-
-def error(errorvalue):
-	print(f"[ERROR] > {errorvalue}")
-
-def clear():
-	os.system('cls' if os.name == 'nt' else 'clear')
-
-def menu():
-	print("""\nLOOKUP
-1 > Using Dorks (Google, -Bing-, -DuckDuckGo-)
-2 > Using Instagram Username
-3 > Using Tiktok Username
-		""")
-
-def ai_resultsummary(chatobject):
-	reply = chatobject.send(SEARCH_SUMMARY)
-	return reply
-
-def askmenu():
-	return input("[MENU] > ")
-
-def dorking_input1():
-	while True:
-		amount = input("[SE DORKING] Amount of keyword to use > ")
-		try:
-			match int(amount):
-				case 1 | 2 | 3 | 4 | 4:
-					return amount
-				case _:
-					error("Invalid Input")
-		except ValueError:
-			error("Invalid Input")
-
-def dorking_input2(varamount):
-	itera = 0
-	keywords = []
-	while True:
-		itera += 1
-		keyword = input(f"[SE DORKING] Keyword {itera} > ")
-		if keyword != '':
-			keywords.append(keyword)
-		if itera >= int(varamount):
-			return keywords
+def help_menu():
+	description = Text(
+    "ez-dork is a powerful utility that helps you do OSINT using dorking, "
+  	"automate dorking on multiplesearch engine.",
+    style="italic bright_white"
+	)
+	console.print(Align(description, align="left"))
+	
+	table = Table(title="📜 Commands", box=box.ROUNDED, border_style="bright_cyan")
+	table.add_column("Command", style="bold green", no_wrap=True)
+	table.add_column("Description", style="white")
+	table.add_column("Example", style="bright_yellow")
+	
+	table.add_row("fullname", "Initialize search using a full name", '`main.py fullname "{full_name}"`')
+	table.add_row("phone", "Initialize search using a phone number", '`main.py phone {country_code} {phone_number}`')
+	table.add_row("address", "Initialize search using an address", '`main.py address "{address}`')
+	table.add_row("social", "Initialize search using a social media handle", '`main.py social "{social_media_handle}"`')
+	table.add_row("alias", "Initialize search using an alias", '`main.py alias "{name_alias}"`')
+	
+	console.print(table)
+	
+	tips_text = Text.from_markup(
+	    "[bold bright_magenta]💡 Tips:[/bold bright_magenta]\n"
+	    "- Use [green]--verbose[/green] for detailed logs.\n"
+	    "- For phone number dorking [red]do not[/red] use dashed or spaces.\n"
+	    "- Run [yellow]ez-dork config[/yellow] to customize settings."
+	)
+	console.print(Panel(tips_text, title="Quick Tips", border_style="magenta", expand=False))
+	
+	footer = Text("Made with ❤️  by Ahnaf", style="bold white on dark_green", justify="center")
+	console.print(Panel(footer, expand=True, style="green"))
 
 
-def processmenu(input):
-	match input:
-		case "1":
-			clear()
-			main_banner()
-			dorks_banner()
-			var = dorking_input1()
-			keywords = dorking_input2(var)
-			search_summary, chat = google_dorks(keywords)
-			resultsum = remove_think(ai_resultsummary(chat))
-			print(resultsum)
-			return True
-		case _:
-			error("Invalid menu input")
-			return False
