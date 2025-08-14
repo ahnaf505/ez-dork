@@ -1,49 +1,75 @@
+from fastapi import FastAPI, Query
+import threading
+import queue
+from typing import Dict, List
+
 from browser import *
-from cli import *
-import argparse
-import sys
 
-parser = argparse.ArgumentParser(description="Search initializer CLI")
-subparsers = parser.add_subparsers(dest="command", required=False)
+search_queue = queue.Queue()
+stop_event = threading.Event()
 
-p_fullname = subparsers.add_parser("fullname", help="Initialize search using a full name")
-p_fullname.add_argument("full_name", help="Full Name")
+results_store: Dict[str, List[Dict[str, str]]] = {}  # {query: [{"title": ..., "link": ..., "desc": ...}]}
 
-p_phone = subparsers.add_parser("phone", help="Initialize search using a phone number")
-p_phone.add_argument("country_code", help="Country code")
-p_phone.add_argument("phone_number", help="Phone number")
+def query_engine(engine_func, query_str):
+    results = engine_func([query_str])
+    return [
+        {"title": r[0], "link": r[1], "desc": r[2]}
+        for r in results if len(r) >= 3
+    ]
 
-p_address = subparsers.add_parser("address", help="Initialize search using an address")
-p_address.add_argument("address", help="Address")
+def mass_query(query_str):
+    engines = [
+        google_queries,
+        bing_queries,
+        duckduckgo_queries,
+        yahoo_queries,
+        scribd_queries,
+        brave_queries
+    ]
+    aggregated = []
+    for engine in engines:
+        try:
+            engine_results = query_engine(engine, query_str)
+            aggregated.extend(engine_results)
+        except Exception as e:
+            print(f"Error in {engine.__name__}: {e}")
+    return aggregated
 
-p_social = subparsers.add_parser("social", help="Initialize search using a social media handle")
-p_social.add_argument("social_media_handle", help="Social media handle")
+def search_worker():
+    while not stop_event.is_set():
+        try:
+            query = search_queue.get(timeout=0.5)
+        except queue.Empty:
+            continue
+        if query is None:
+            break
 
-p_alias = subparsers.add_parser("alias", help="Initialize search using an alias")
-p_alias.add_argument("name_alias", help="Alias")
+        print(f"[INFO] Starting search for: {query}")
+        res = mass_query(query)
+        results_store[query] = res
+        print(f"[INFO] Search finished for: {query}")
+        search_queue.task_done()
 
-args = parser.parse_args()
 
-if args.command == "fullname":
-    print(f"Searching by full name: {args.full_name}")
-elif args.command == "phone":
-    print(f"Searching by phone: +{args.country_code} {args.phone_number}")
-elif args.command == "address":
-    print(f"Searching by address: {args.address}")
-elif args.command == "social":
-    print(f"Searching by social handle: {args.social_media_handle}")
-elif args.command == "alias":
-    print(f"Searching by alias: {args.name_alias}")
-else:
-	main_banner()
-	help_menu()
-	sys.exit(1)
+app = FastAPI()
 
-key = "john doe"
+@app.on_event("startup")
+def startup_event():
+    threading.Thread(target=search_worker, daemon=True).start()
 
-#print(google_queries([f'"{key}"']))
-#print(bing_queries([f'"{key}"']))
-#print(duckduckgo_queries([f'"{key}"']))
-#print(yahoo_queries([f'"{key}"']))
-#print(scribd_queries([f'"{key}"']))
-#print(brave_queries([f'"{key}"']))
+@app.on_event("shutdown")
+def shutdown_event():
+    stop_event.set()
+    search_queue.put(None)
+
+@app.post("/search/")
+def enqueue_search(query: str = Query(..., description="Search keyword")):
+    search_queue.put(query)
+    return {"status": "queued", "query": query}
+
+@app.get("/results/{query}")
+def get_results(query: str):
+    return {
+        "query": query,
+        "results": results_store.get(query, [])
+    }
