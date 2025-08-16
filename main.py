@@ -1,5 +1,20 @@
 from typing import Dict, List
 from browser import *
+import argparse
+
+def get_args():
+    parser = argparse.ArgumentParser(description='App with --enableStuff flag')
+    parser.add_argument('--enableStuff', action='store_true',
+                      help='Enable the special functionality')
+    
+    args = parser.parse_args()
+    
+    if args.enableStuff:
+        print("Special functionality ENABLED")
+        # Add your special functionality here
+    else:
+        print("Special functionality DISABLED")
+        # Normal operatio
 
 results_store: Dict[str, List[Dict[str, str]]] = {}
 
