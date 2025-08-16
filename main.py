@@ -59,6 +59,7 @@ Note: Use quotes ("") for multi-word inputs (e.g., "admin login")"""
 
 
 def construct_query_str(args, varies=False):
+    keyword = args.keyword
     google_query_str = []
     bing_query_str = []
     duckduckgo_query_str = []
@@ -66,54 +67,72 @@ def construct_query_str(args, varies=False):
     scribd_query_str = []
     brave_query_str = []
 
+    nonexact_google_query_str = []
+    nonexact_bing_query_str = []
+    nonexact_duckduckgo_query_str = []
+    nonexact_yahoo_query_str = []
+    nonexact_scribd_query_str = []
+    nonexact_brave_query_str = []
+
     def generate_keyword_variations(keyword):
         # not implemented yet :(
         return "type shi"
-    if varies:
-        keyword_variations = generate_keyword_variations(args.keyword)
 
 
     google_base_str = ""
     bing_base_str = ""
     duckduckgo_base_str = ""
     yahoo_base_str = ""
-    scribd_base_str = ""
     brave_base_str = ""
     if args.exclude:
         google_base_str += f' -{args.exclude}'
         bing_base_str += f' -{args.exclude}'
         duckduckgo_base_str += f' -{args.exclude}'
         yahoo_base_str += f' -{args.exclude}'
-        scribd_base_str += f' -{args.exclude}'
         brave_base_str += f' -{args.exclude}'
     if args.filetype:
-        google_base_str += f' -{args.filetype}'
-        bing_base_str += f' -{args.filetype}'
-        duckduckgo_base_str += f' -{args.filetype}'
-        yahoo_base_str += f' -{args.filetype}'
-        scribd_base_str += f' -{args.filetype}'
-        brave_base_str += f' -{args.filetype}'
+        google_base_str += f' filetype:{args.filetype}'
+        bing_base_str += f' ext:{args.filetype}'
+        duckduckgo_base_str += f' filetype:{args.filetype}'
+        yahoo_base_str += f' filetype:{args.filetype}'
+        brave_base_str += f' ext:{args.filetype}'
     if args.site:
-        base_components.append(f'site:{args.site}')
+        google_base_str += f' site:{args.site}'
+        bing_base_str += f' site:{args.site}'
+        duckduckgo_base_str += f' site:{args.site}'
+        brave_base_str += f' site:{args.site}'
     if args.intitle:
-        base_components.append(f'intitle:{args.intitle}')
+        google_base_str += f' intitle:{args.intitle}'
+        bing_base_str += f' intitle:{args.intitle}'
+        duckduckgo_base_str += f' intitle:{args.intitle}'
+        yahoo_base_str += f' intitle:{args.intitle}'
+        brave_base_str += f' intitle{args.intitle}'
     if args.inurl:
-        base_components.append(f'inurl:{args.inurl}')
+        google_base_str += f' inurl:{args.inurl}'
+        duckduckgo_base_str += f' inurl:{args.inurl}'
+        yahoo_base_str += f' inurl:{args.inurl}'
     if args.intext:
-        base_components.append(f'intext:{args.intext}')
+        google_base_str += f' intext:{args.intext}'
+        bing_base_str += f' intext:{args.intext}'
+        brave_base_str += f' inpage:{args.intext}'
 
-    base_query = f'"{keyword}"'
-    
-    # Google query
-    google_query = f'{base_query} {" ".join(base_components)}'.strip()
-    google_query_str.append(google_query)
-    
-    # Other search engines use the same query format
-    bing_query_str.append(google_query)
-    duckduckgo_query_str.append(google_query)
-    yahoo_query_str.append(google_query)
-    scribd_query_str.append(google_query)
-    brave_query_str.append(google_query)
+        
+    # Exact query
+    google_query_str.append(keyword + google_base_str)
+    bing_query_str.append(keyword + bing_base_str)
+    duckduckgo_query_str.append(keyword + duckduckgo_base_str)
+    yahoo_query_str.append(keyword + yahoo_base_str)
+    scribd_query_str.append(keyword)
+    brave_query_str.append(keyword + brave_base_str)
+
+    google_query_str.append(f'"{keyword}"' + google_base_str)
+    bing_query_str.append(f'"{keyword}"' + bing_base_str)
+    duckduckgo_query_str.append(f'"{keyword}"' + duckduckgo_base_str)
+    yahoo_query_str.append(f'"{keyword}"' + yahoo_base_str)
+    scribd_query_str.append(f'"{keyword}"')
+    brave_query_str.append(f'"{keyword}"' + brave_base_str)
+
+    # Non-exact query
 
     return {
         'google': list(set(google_query_str)),  # Remove duplicates
