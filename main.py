@@ -26,11 +26,11 @@ Note: Use quotes ("") for multi-word inputs (e.g., "admin login")"""
                              help='File extensions (space/comma-separated, e.g., pdf docx OR "pdf,docx")')
     search_group.add_argument('-s', '--site', nargs='+',
                              help='Target sites (space/comma-separated, e.g., example.com OR "a.com,b.com")')
-    search_group.add_argument('--intitle', 
+    search_group.add_argument('-t', '--intitle', 
                              help='Text in page title (use quotes for multi-word)')
-    search_group.add_argument('--inurl', 
+    search_group.add_argument('-u', '--inurl', 
                              help='Text in URL (use quotes for multi-word)')
-    search_group.add_argument('--intext', 
+    search_group.add_argument('-x', '--intext', 
                              help='Text in page content (use quotes for multi-word)')
 
     # Options
@@ -57,6 +57,20 @@ Note: Use quotes ("") for multi-word inputs (e.g., "admin login")"""
 
     return args
 
+def detect_multi_word(text):
+    if not keyword.strip():
+        return []
+    words = keyword.split()
+    # note : Return true if its multi word
+    if len(words) == 1:
+        return False
+    else:
+        return True
+
+def generate_keyword_variations(keyword):
+        # not implemented yet :(
+        return "type shi"
+
 
 def construct_query_str(args, nonexact=False):
     keyword = args.keyword
@@ -66,11 +80,6 @@ def construct_query_str(args, nonexact=False):
     yahoo_query_str = []
     scribd_query_str = []
     brave_query_str = []
-
-    def generate_keyword_variations(keyword):
-        # not implemented yet :(
-        return "type shi"
-
 
     google_base_str = ""
     bing_base_str = ""
@@ -99,7 +108,7 @@ def construct_query_str(args, nonexact=False):
         bing_base_str += f' intitle:{args.intitle}'
         duckduckgo_base_str += f' intitle:{args.intitle}'
         yahoo_base_str += f' intitle:{args.intitle}'
-        brave_base_str += f' intitle{args.intitle}'
+        brave_base_str += f' intitle:{args.intitle}'
     if args.inurl:
         google_base_str += f' inurl:{args.inurl}'
         duckduckgo_base_str += f' inurl:{args.inurl}'
@@ -236,3 +245,5 @@ if __name__ == "__main__":
     args = parse_args()
     queries = construct_query_str(args)
     print(queries)
+
+
