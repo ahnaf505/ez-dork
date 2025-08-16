@@ -22,10 +22,10 @@ Note: Use quotes ("") for multi-word inputs (e.g., "admin login")"""
                              help='Query keywords (use quotes for multi-word, e.g., "admin login")')
     search_group.add_argument('-e', '--exclude', 
                              help='Exclude word/phrase (use quotes for multi-word)')
-    search_group.add_argument('-f', '--filetype', nargs='+',
-                             help='File extensions (space/comma-separated, e.g., pdf docx OR "pdf,docx")')
-    search_group.add_argument('-s', '--site', nargs='+',
-                             help='Target sites (space/comma-separated, e.g., example.com OR "a.com,b.com")')
+    search_group.add_argument('-f', '--filetype',
+                             help='File extension, e.g. pdf')
+    search_group.add_argument('-s', '--site',
+                             help='Target site, e.g. example.com')
     search_group.add_argument('-t', '--intitle', 
                              help='Text in page title (use quotes for multi-word)')
     search_group.add_argument('-u', '--inurl', 
@@ -35,32 +35,31 @@ Note: Use quotes ("") for multi-word inputs (e.g., "admin login")"""
 
     # Options
     opt_group = parser.add_argument_group('Options')
-    opt_group.add_argument('--output', '-o', default="query_result.txt",
+    opt_group.add_argument('-o', '--output', default="query_result.txt",
                           help='Output file (default: query_result.txt)')
-    opt_group.add_argument('--headless', action='store_true',
+    opt_group.add_argument('-n', '--non-exact-match', action='store_true',
+                          help='Add non-exact match to the search query')
+    opt_group.add_argument('-d', '--headless', action='store_true',
                           help='Enable headless browser mode')
-    opt_group.add_argument('--randombrowseragent', action='store_true',
+    opt_group.add_argument('-r', '--randombrowseragent', action='store_true',
                           help='Use random browser user-agent')
+    opt_group.add_argument('-v', '--verbose', action='store_true',
+                          help='Output every single search result to terminal')
 
     args = parser.parse_args()
 
-    # Validate at least one search parameter exists
+    # Validation
     if not any([args.keyword, args.exclude, args.filetype, 
                 args.site, args.intitle, args.inurl, args.intext]):
         parser.print_help()
-        sys.exit("\nError: At least one search parameter is required!")
-
-    if args.filetype:
-        args.filetype = ','.join(ft.strip() for ft in args.filetype)
-    if args.site:
-        args.site = ','.join(s.strip() for s in args.site)
+        sys.exit("\nError: At least one search parameter is required!")(ft.strip() for ft in args.filetype)
 
     return args
 
 def detect_multi_word(text):
-    if not keyword.strip():
+    if not text.strip():
         return []
-    words = keyword.split()
+    words = text.split()
     # note : Return true if its multi word
     if len(words) == 1:
         return False
@@ -72,7 +71,7 @@ def generate_keyword_variations(keyword):
         return "type shi"
 
 
-def construct_query_str(args, nonexact=False):
+def construct_query_str(args):
     keyword = args.keyword
     google_query_str = []
     bing_query_str = []
@@ -134,7 +133,7 @@ def construct_query_str(args, nonexact=False):
     scribd_query_str.append(f'"{keyword}"')
     brave_query_str.append(f'"{keyword}"' + brave_base_str)
 
-    if nonexact:
+    if args.non_exact_match and detect_multi_word(keyword):
         nonexact_google_query_str = []
         nonexact_bing_query_str = []
         nonexact_duckduckgo_query_str = []
@@ -240,10 +239,14 @@ def mass_query(query_str):
             print(f"Error in {engine.__name__}: {e}")
     return aggregated
 
-
-if __name__ == "__main__":
+def main():
     args = parse_args()
+    print(args)
     queries = construct_query_str(args)
     print(queries)
+
+if __name__ == "__main__":
+    main()
+    
 
 
