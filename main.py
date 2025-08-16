@@ -1,7 +1,9 @@
 from typing import Dict, List
 from browser import *
 import argparse
+import itertools
 import sys
+import re
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -66,9 +68,18 @@ def detect_multi_word(text):
     else:
         return True
 
-def generate_keyword_variations(keyword):
-        # not implemented yet :(
-        return "type shi"
+def generate_word_variations(word):
+    return [word, word[0], word[0] + "."]
+
+def generate_keyword_variations(sentence):
+    words = re.findall(r"\w+", sentence)
+    
+    word_variations = [generate_word_variations(w) for w in words]
+    all_combinations = itertools.product(*word_variations)
+    
+    variations = [" ".join(combo) for combo in all_combinations]
+    
+    return variations
 
 
 def construct_query_str(args):
@@ -241,12 +252,12 @@ def mass_query(query_str):
 
 def main():
     args = parse_args()
-    print(args)
+    print(generate_keyword_variations(args.keyword))
     queries = construct_query_str(args)
     print(queries)
 
 if __name__ == "__main__":
     main()
-    
+
 
 
