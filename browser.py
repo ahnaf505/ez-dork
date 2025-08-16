@@ -84,7 +84,7 @@ def google_queries(queries):
 def bing_queries(queries):
     res = []
     try:
-        driver = uc.Chrome(options=get_options(), headless=True, version_main=138)
+        driver = uc.Chrome(options=get_options(), headless=False, version_main=138)
         wait = WebDriverWait(driver, 30)
     except:
         return []
@@ -130,7 +130,7 @@ def bing_queries(queries):
 def duckduckgo_queries(queries):
     res = []
     try:
-        driver = uc.Chrome(options=get_options(), headless=True, version_main=138)
+        driver = uc.Chrome(options=get_options(), headless=False, version_main=138)
         wait = WebDriverWait(driver, 15)
     except:
         return []
@@ -176,7 +176,7 @@ def duckduckgo_queries(queries):
 def yahoo_queries(queries):
     res = []
     try:
-        driver = uc.Chrome(options=get_options(), headless=True, version_main=138)
+        driver = uc.Chrome(options=get_options(), headless=False, version_main=138)
         wait = WebDriverWait(driver, 15)
     except:
         return []
@@ -223,7 +223,7 @@ def yahoo_queries(queries):
 def scribd_queries(queries):
     res = []
     try:
-        driver = uc.Chrome(options=get_options(), headless=True, version_main=138)
+        driver = uc.Chrome(options=get_options(), headless=False, version_main=138)
         wait = WebDriverWait(driver, 15)
     except:
         return []
@@ -270,7 +270,7 @@ def scribd_queries(queries):
 def brave_queries(queries):
     res = []
     try:
-        driver = uc.Chrome(options=get_options(), headless=True, version_main=138)
+        driver = uc.Chrome(options=get_options(), headless=False, version_main=138)
         wait = WebDriverWait(driver, 15)
     except:
         return []
