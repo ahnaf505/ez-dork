@@ -72,12 +72,27 @@ def construct_query_str(args, varies=False):
     if varies:
         keyword_variations = generate_keyword_variations(args.keyword)
 
-    # Base query components
-    base_components = []
+
+    google_base_str = ""
+    bing_base_str = ""
+    duckduckgo_base_str = ""
+    yahoo_base_str = ""
+    scribd_base_str = ""
+    brave_base_str = ""
     if args.exclude:
-        base_components.append(f'-{args.exclude}')
+        google_base_str += f' -{args.exclude}'
+        bing_base_str += f' -{args.exclude}'
+        duckduckgo_base_str += f' -{args.exclude}'
+        yahoo_base_str += f' -{args.exclude}'
+        scribd_base_str += f' -{args.exclude}'
+        brave_base_str += f' -{args.exclude}'
     if args.filetype:
-        base_components.append(f'filetype:{args.filetype}')
+        google_base_str += f' -{args.filetype}'
+        bing_base_str += f' -{args.filetype}'
+        duckduckgo_base_str += f' -{args.filetype}'
+        yahoo_base_str += f' -{args.filetype}'
+        scribd_base_str += f' -{args.filetype}'
+        brave_base_str += f' -{args.filetype}'
     if args.site:
         base_components.append(f'site:{args.site}')
     if args.intitle:
@@ -87,20 +102,18 @@ def construct_query_str(args, varies=False):
     if args.intext:
         base_components.append(f'intext:{args.intext}')
 
-    # Construct queries for each keyword variation
-    for keyword in keyword_variations:
-        base_query = f'"{keyword}"'  # Exact match for the keyword
-        
-        # Google query
-        google_query = f'{base_query} {" ".join(base_components)}'.strip()
-        google_query_str.append(google_query)
-        
-        # Other search engines use the same query format
-        bing_query_str.append(google_query)
-        duckduckgo_query_str.append(google_query)
-        yahoo_query_str.append(google_query)
-        scribd_query_str.append(google_query)
-        brave_query_str.append(google_query)
+    base_query = f'"{keyword}"'
+    
+    # Google query
+    google_query = f'{base_query} {" ".join(base_components)}'.strip()
+    google_query_str.append(google_query)
+    
+    # Other search engines use the same query format
+    bing_query_str.append(google_query)
+    duckduckgo_query_str.append(google_query)
+    yahoo_query_str.append(google_query)
+    scribd_query_str.append(google_query)
+    brave_query_str.append(google_query)
 
     return {
         'google': list(set(google_query_str)),  # Remove duplicates
