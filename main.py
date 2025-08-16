@@ -58,7 +58,7 @@ Note: Use quotes ("") for multi-word inputs (e.g., "admin login")"""
     return args
 
 
-def construct_query_str(args, varies=False):
+def construct_query_str(args, nonexact=False):
     keyword = args.keyword
     google_query_str = []
     bing_query_str = []
@@ -66,13 +66,6 @@ def construct_query_str(args, varies=False):
     yahoo_query_str = []
     scribd_query_str = []
     brave_query_str = []
-
-    nonexact_google_query_str = []
-    nonexact_bing_query_str = []
-    nonexact_duckduckgo_query_str = []
-    nonexact_yahoo_query_str = []
-    nonexact_scribd_query_str = []
-    nonexact_brave_query_str = []
 
     def generate_keyword_variations(keyword):
         # not implemented yet :(
@@ -132,16 +125,79 @@ def construct_query_str(args, varies=False):
     scribd_query_str.append(f'"{keyword}"')
     brave_query_str.append(f'"{keyword}"' + brave_base_str)
 
-    # Non-exact query
+    if nonexact:
+        nonexact_google_query_str = []
+        nonexact_bing_query_str = []
+        nonexact_duckduckgo_query_str = []
+        nonexact_yahoo_query_str = []
+        nonexact_scribd_query_str = []
+        nonexact_brave_query_str = []
 
-    return {
-        'google': list(set(google_query_str)),  # Remove duplicates
-        'bing': list(set(bing_query_str)),
-        'duckduckgo': list(set(duckduckgo_query_str)),
-        'yahoo': list(set(yahoo_query_str)),
-        'scribd': list(set(scribd_query_str)),
-        'brave': list(set(brave_query_str))
-    }
+        # Non-exact query
+        for var_keyword in generate_keyword_variations(keyword):
+            # Altered keyword with additional search operators
+            nonexact_google_query_str.append(var_keyword + google_base_str)
+            nonexact_bing_query_str.append(var_keyword + bing_base_str)
+            nonexact_duckduckgo_query_str.append(var_keyword + duckduckgo_base_str)
+            nonexact_yahoo_query_str.append(var_keyword + yahoo_base_str)
+            nonexact_scribd_query_str.append(var_keyword)
+            nonexact_brave_query_str.append(var_keyword + brave_base_str)
+    
+            # Altered keyword without additional search operators
+            nonexact_google_query_str.append(var_keyword)
+            nonexact_bing_query_str.append(var_keyword)
+            nonexact_duckduckgo_query_str.append(var_keyword)
+            nonexact_yahoo_query_str.append(var_keyword)
+            nonexact_scribd_query_str.append(var_keyword)
+            nonexact_brave_query_str.append(var_keyword)
+    
+            # Altered keyword without additional search operators but with exact phrase
+            nonexact_google_query_str.append(f'"{var_keyword}"')
+            nonexact_bing_query_str.append(f'"{var_keyword}"')
+            nonexact_duckduckgo_query_str.append(f'"{var_keyword}"')
+            nonexact_yahoo_query_str.append(f'"{var_keyword}"')
+            nonexact_scribd_query_str.append(f'"{var_keyword}"')
+            nonexact_brave_query_str.append(f'"{var_keyword}"')
+
+        # Original keyword without additional search opearators
+        nonexact_google_query_str.append(keyword)
+        nonexact_bing_query_str.append(keyword)
+        nonexact_duckduckgo_query_str.append(keyword)
+        nonexact_yahoo_query_str.append(keyword)
+        nonexact_brave_query_str.append(keyword)
+    
+        nonexact_google_query_str.append(f'"{keyword}"')
+        nonexact_bing_query_str.append(f'"{keyword}"')
+        nonexact_duckduckgo_query_str.append(f'"{keyword}"')
+        nonexact_yahoo_query_str.append(f'"{keyword}"')
+        nonexact_brave_query_str.append(f'"{keyword}"')
+        # Scribd is skipped cause the same query str already implemented on the exact query
+
+        # Return non-exact too if its enabled
+        return {
+            'google_query_str': google_query_str,
+            'bing_query_str': bing_query_str,
+            'duckduckgo_query_str': duckduckgo_query_str,
+            'yahoo_query_str': yahoo_query_str,
+            'scribd_query_str': scribd_query_str,
+            'brave_query_str': brave_query_str,
+            'nonexact_google_query_str': nonexact_google_query_str,
+            'nonexact_bing_query_str': nonexact_bing_query_str,
+            'nonexact_duckduckgo_query_str': nonexact_duckduckgo_query_str,
+            'nonexact_yahoo_query_str': nonexact_yahoo_query_str,
+            'nonexact_scribd_query_str': nonexact_scribd_query_str,
+            'nonexact_brave_query_str': nonexact_brave_query_str
+        }
+
+    else:
+        return {
+            'google_query_str': google_query_str,
+            'bing_query_str': bing_query_str,
+            'duckduckgo_query_str': duckduckgo_query_str,
+            'yahoo_query_str': yahoo_query_str,
+            'scribd_query_str': scribd_query_str,
+            'brave_query_str': brave_query_str
+        }
 
 
 
